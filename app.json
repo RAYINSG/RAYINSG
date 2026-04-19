@@ -1,0 +1,72 @@
+{
+  "expo": {
+    "name": "HomeStore",
+    "slug": "homestore-app",
+    "owner": "kk1744",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.yourname.homestore",
+      "infoPlist": {
+        "NSCameraUsageDescription": "需要使用相機拍攝產品照片",
+        "NSPhotoLibraryUsageDescription": "需要存取相簿以選取產品照片",
+        "NSPhotoLibraryAddUsageDescription": "需要儲存拍攝的照片"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#2E7D32"
+      },
+      "package": "com.yourname.homestore",
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.VIBRATE",
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "edgeToEdgeEnabled": false,
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-camera",
+      "expo-image-picker",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#2E7D32"
+        }
+      ],
+      "expo-secure-store",
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-3113431571318750~2641774115",
+          "iosAppId": "ca-app-pub-3113431571318750~2641774115"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "e6fbcf7a-0532-4a67-9ba7-962d4f87ef18"
+      }
+    }
+  }
+}
