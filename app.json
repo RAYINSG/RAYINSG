@@ -28,6 +28,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#2E7D32"
       },
+      "versionCode": 2,
       "package": "com.homestore.inventory",
       "permissions": [
         "android.permission.CAMERA",
