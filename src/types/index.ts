@@ -41,6 +41,7 @@ export interface User {
   uid: string;
   email: string | null;
   displayName: string | null;
+  emailVerified: boolean;
 }
 
 export type RootStackParamList = {
@@ -51,6 +52,7 @@ export type RootStackParamList = {
 export type AuthStackParamList = {
   Login: undefined;
   Register: undefined;
+  VerifyEmail: undefined;
 };
 
 export type MainTabParamList = {

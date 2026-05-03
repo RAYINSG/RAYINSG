@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { useI18n, LANGUAGE_LABELS, Language } from '../../../i18n';
 import Constants from 'expo-constants';
 import { AD_UNITS } from '../../../services/ads/adService';
 const isExpoGo = Constants.appOwnership === 'expo' || __DEV__;
@@ -20,6 +21,7 @@ import { useTranslation } from '../../../i18n';
 
 export function HomeScreen() {
   const { t } = useTranslation();
+  const { language, setLanguage } = useI18n();
   const { user } = useAuth();
   const { items, subscribe, loadLocations, isPremium } = useInventory();
   const navigation = useNavigation<any>();
@@ -55,8 +57,26 @@ export function HomeScreen() {
   return (
     <View style={styles.wrapper}>
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-        <Text style={styles.greeting}>{t('home.greeting', { name: user?.displayName ?? '' })}</Text>
-        <Text style={styles.subtitle}>{t('home.subtitle')}</Text>
+        <View style={styles.headerRow}>
+          <View style={styles.headerText}>
+            <Text style={styles.greeting}>{t('home.greeting', { name: user?.displayName ?? '' })}</Text>
+            <Text style={styles.subtitle}>{t('home.subtitle')}</Text>
+          </View>
+        </View>
+
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.langRow} contentContainerStyle={styles.langRowContent}>
+          {(Object.entries(LANGUAGE_LABELS) as [Language, string][]).map(([code, label]) => (
+            <TouchableOpacity
+              key={code}
+              style={[styles.langChip, language === code && styles.langChipActive]}
+              onPress={() => setLanguage(code)}
+            >
+              <Text style={[styles.langChipText, language === code && styles.langChipTextActive]}>
+                {label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
 
         <View style={styles.statsRow}>
           <StatCard emoji="📦" count={active.length} label={t('home.statActive')} color={Colors.primary} onPress={() => goToFilter('active')} />
@@ -126,8 +146,20 @@ const styles = StyleSheet.create({
   wrapper: { flex: 1, backgroundColor: Colors.background },
   container: { flex: 1 },
   content: { padding: Spacing.lg },
+  headerRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: Spacing.sm },
+  headerText: { flex: 1 },
   greeting: { fontSize: FontSize.xl, fontWeight: '700', color: Colors.text },
-  subtitle: { fontSize: FontSize.md, color: Colors.textSecondary, marginBottom: Spacing.xl },
+  subtitle: { fontSize: FontSize.md, color: Colors.textSecondary },
+  langRow: { marginBottom: Spacing.xl },
+  langRowContent: { flexDirection: 'row', gap: Spacing.xs, paddingBottom: Spacing.xs },
+  langChip: {
+    paddingHorizontal: Spacing.sm, paddingVertical: 4,
+    borderRadius: BorderRadius.full, borderWidth: 1, borderColor: Colors.border,
+    backgroundColor: Colors.surface,
+  },
+  langChipActive: { borderColor: Colors.primary, backgroundColor: Colors.primary },
+  langChipText: { fontSize: FontSize.xs, color: Colors.textSecondary },
+  langChipTextActive: { color: '#fff', fontWeight: '600' },
   statsRow: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.xl },
   statCard: {
     flex: 1, backgroundColor: Colors.surface, borderRadius: BorderRadius.md,

@@ -3,6 +3,13 @@
     "version": ">= 16.0.0"
   },
   "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      }
+    },
     "preview": {
       "android": {
         "buildType": "apk",
@@ -21,6 +28,12 @@
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "android": {
+        "serviceAccountKeyPath": "C:/Users/ChiJu/Downloads/sturdy-now-444802-i2-b59d030c5b07.json",
+        "track": "alpha",
+        "releaseStatus": "draft"
+      }
+    }
   }
 }

@@ -39,6 +39,11 @@ export function preloadInterstitial() {
     interstitial = InterstitialAd.createForAdRequest(AD_UNITS.INTERSTITIAL);
     interstitial.addAdEventListener(AdEventType.LOADED, () => { interstitialLoaded = true; });
     interstitial.addAdEventListener(AdEventType.CLOSED, () => { interstitialLoaded = false; preloadInterstitial(); });
+    // 載入失敗時 30 秒後重試
+    interstitial.addAdEventListener(AdEventType.ERROR, () => {
+      interstitialLoaded = false;
+      setTimeout(() => preloadInterstitial(), 30000);
+    });
     interstitial.load();
   } catch {}
 }

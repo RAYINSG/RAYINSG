@@ -4,7 +4,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { getT } from '../../i18n';
 
-const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.kk1744.homestoreapp';
+const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.homestore.inventory';
 
 function parseVersion(v: string): number[] {
   return v.split('.').map(n => parseInt(n, 10) || 0);

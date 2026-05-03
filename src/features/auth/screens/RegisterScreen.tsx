@@ -36,6 +36,7 @@ export function RegisterScreen({ navigation }: Props) {
     if (!validate()) return;
     try {
       await register(email.trim(), password, name.trim());
+      navigation.navigate('VerifyEmail');
     } catch (err: any) {
       const msg = err.code === 'auth/email-already-in-use'
         ? t('auth.emailInUse')

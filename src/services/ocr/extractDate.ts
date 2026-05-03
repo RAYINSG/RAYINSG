@@ -240,26 +240,30 @@ export async function extractExpiryDateFromImage(imageUri: string): Promise<Date
     const fullText = result.text;
     const lines = fullText.split('\n').map((l: string) => l.trim()).filter(Boolean);
 
-    // 第一輪：優先找含關鍵字的行（可信度高）
+    const candidates: Date[] = [];
+
+    // 第一輪：優先找含關鍵字的行（可信度高），收集所有符合的日期
     for (const keyword of TRIGGER_KEYWORDS) {
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
         if (line.toLowerCase().includes(keyword.toLowerCase())) {
-          // 試解析當行
           const d = tryParseDate(line);
-          if (d) return d;
-          // 試與下一行合併（日期可能換行）
+          if (d) candidates.push(d);
           if (i + 1 < lines.length) {
             const d2 = tryParseDate(line + ' ' + lines[i + 1]);
-            if (d2) return d2;
+            if (d2) candidates.push(d2);
           }
-          // 試與前一行合併
           if (i > 0) {
             const d3 = tryParseDate(lines[i - 1] + ' ' + line);
-            if (d3) return d3;
+            if (d3) candidates.push(d3);
           }
         }
       }
+    }
+
+    // 若關鍵字輪找到日期，取最晚的（過期日通常比製造日晚）
+    if (candidates.length > 0) {
+      return candidates.reduce((latest, d) => d > latest ? d : latest);
     }
 
     // 第二輪：沒有關鍵字，掃所有行，但排除最低優先的無年份格式
@@ -270,10 +274,15 @@ export async function extractExpiryDateFromImage(imageUri: string): Promise<Date
         if (match) {
           try {
             const d = parse(match);
-            if (d && isValidDate(d)) return d;
+            if (d && isValidDate(d)) candidates.push(d);
           } catch {}
         }
       }
+    }
+
+    // 第二輪也取最晚的日期
+    if (candidates.length > 0) {
+      return candidates.reduce((latest, d) => d > latest ? d : latest);
     }
 
     return null;

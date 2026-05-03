@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourname.homestore",
+      "bundleIdentifier": "com.homestore.inventory",
       "infoPlist": {
         "NSCameraUsageDescription": "需要使用相機拍攝產品照片",
         "NSPhotoLibraryUsageDescription": "需要存取相簿以選取產品照片",
@@ -23,11 +23,12 @@
       }
     },
     "android": {
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#2E7D32"
       },
-      "package": "com.yourname.homestore",
+      "package": "com.homestore.inventory",
       "permissions": [
         "android.permission.CAMERA",
         "android.permission.READ_EXTERNAL_STORAGE",
@@ -61,7 +62,8 @@
           "androidAppId": "ca-app-pub-3113431571318750~2641774115",
           "iosAppId": "ca-app-pub-3113431571318750~2641774115"
         }
-      ]
+      ],
+      "@react-native-google-signin/google-signin"
     ],
     "extra": {
       "eas": {

@@ -7,6 +7,7 @@ import { Text, TouchableOpacity, View, ActivityIndicator, StyleSheet, Alert } fr
 import { useAuth } from '../features/auth/hooks/useAuth';
 import { LoginScreen } from '../features/auth/screens/LoginScreen';
 import { RegisterScreen } from '../features/auth/screens/RegisterScreen';
+import { VerifyEmailScreen } from '../features/auth/screens/VerifyEmailScreen';
 import { HomeScreen } from '../features/inventory/screens/HomeScreen';
 import { ScannerScreen } from '../features/scanner/screens/ScannerScreen';
 import { InventoryListScreen } from '../features/inventory/screens/InventoryListScreen';
@@ -34,6 +35,7 @@ function AuthNavigator() {
     <AuthStack.Navigator screenOptions={{ headerShown: false }}>
       <AuthStack.Screen name="Login" component={LoginScreen} />
       <AuthStack.Screen name="Register" component={RegisterScreen} />
+      <AuthStack.Screen name="VerifyEmail" component={VerifyEmailScreen} />
     </AuthStack.Navigator>
   );
 }
@@ -147,10 +149,12 @@ export function AppNavigator() {
     );
   }
 
+  const isVerified = !user || user.emailVerified;
+
   return (
     <NavigationContainer>
       <RootStack.Navigator screenOptions={{ headerShown: false }}>
-        {user ? (
+        {user && isVerified ? (
           <RootStack.Screen name="Main" component={MainTabNavigator} />
         ) : (
           <RootStack.Screen name="Auth" component={AuthNavigator} />
