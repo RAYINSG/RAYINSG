@@ -55,6 +55,8 @@ export function subscribeToItems(
         return Number(a.expiryDate) - Number(b.expiryDate);
       });
     onUpdate(items);
+  }, (error) => {
+    console.error('[subscribeToItems] Firestore error:', error.code, error.message);
   });
 }
 

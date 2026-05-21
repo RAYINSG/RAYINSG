@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, Alert,
-  TextInput, TouchableOpacity, Linking,
+  TextInput, TouchableOpacity, Linking, ActivityIndicator,
 } from 'react-native';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { useInventory } from '../../inventory/hooks/useInventory';
@@ -9,6 +9,13 @@ import { Button } from '../../../shared/components/Button';
 import { Card } from '../../../shared/components/Card';
 import { Colors, Spacing, FontSize, BorderRadius } from '../../../shared/theme';
 import { useTranslation, useI18n, LANGUAGE_LABELS, Language } from '../../../i18n';
+import {
+  initIAP,
+  getPremiumProduct,
+  purchasePremium,
+  restorePremiumPurchase,
+  listenPurchaseUpdates,
+} from '../../../services/iap/purchase';
 
 const SUPPORT_EMAIL = 'chijui_yen@hotmail.com';
 const FREE_ITEM_LIMIT = 10;
@@ -20,6 +27,56 @@ export function SettingsScreen() {
   const { items, isPremium, setPremium } = useInventory();
   const [feedbackText, setFeedbackText] = useState('');
   const [sendingFeedback, setSendingFeedback] = useState(false);
+  const [productPrice, setProductPrice] = useState<string>('NT$500');
+  const [purchasing, setPurchasing] = useState(false);
+  const [restoring, setRestoring] = useState(false);
+
+  useEffect(() => {
+    // 初始化 IAP 並取得實際價格
+    initIAP().then(() => {
+      getPremiumProduct().then(p => {
+        if (p?.localizedPrice) setProductPrice(p.localizedPrice);
+      });
+      listenPurchaseUpdates(
+        () => {
+          setPremium(true);
+          setPurchasing(false);
+          Alert.alert('🎉', t('settings.purchaseSuccess'));
+        },
+        (msg) => {
+          setPurchasing(false);
+          Alert.alert(t('common.error'), msg);
+        },
+      );
+    });
+  }, []);
+
+  async function handlePurchase() {
+    setPurchasing(true);
+    try {
+      await purchasePremium();
+      // 結果由 listenPurchaseUpdates 處理
+    } catch {
+      setPurchasing(false);
+    }
+  }
+
+  async function handleRestore() {
+    setRestoring(true);
+    try {
+      const purchased = await restorePremiumPurchase();
+      if (purchased) {
+        setPremium(true);
+        Alert.alert('✅', t('settings.restoreSuccess'));
+      } else {
+        Alert.alert('', t('settings.restoreNotFound'));
+      }
+    } catch {
+      Alert.alert(t('common.error'), t('settings.restoreError'));
+    } finally {
+      setRestoring(false);
+    }
+  }
 
   const activeCount = items.filter(i => i.status !== 'consumed').length;
 
@@ -77,9 +134,29 @@ export function SettingsScreen() {
               <View style={[styles.progressFill, { width: `${Math.min((activeCount / FREE_ITEM_LIMIT) * 100, 100)}%` }]} />
             </View>
             <Text style={styles.planDesc}>{t('settings.freeDesc')}</Text>
-            <Button label={t('settings.upgradeBtn')} onPress={() => {
-              Alert.alert(t('settings.upgradeTitle'), t('settings.upgradeMsg'), [{ text: t('settings.upgradeOk'), style: 'cancel' }]);
-            }} style={styles.upgradeBtn} />
+
+            {/* 買斷升級卡片 */}
+            <View style={styles.upgradeBox}>
+              <Text style={styles.upgradePriceLabel}>🔓 {t('settings.upgradeTitle')}</Text>
+              <Text style={styles.upgradeFeatures}>
+                ✓ {t('settings.featureUnlimited')}{'\n'}
+                ✓ {t('settings.featureAI')}{'\n'}
+                ✓ {t('settings.featureLifetime')}
+              </Text>
+              <Text style={styles.upgradePrice}>{productPrice}</Text>
+              <Button
+                label={purchasing ? t('settings.purchasing') : t('settings.upgradeBtn')}
+                onPress={handlePurchase}
+                loading={purchasing}
+                style={styles.upgradeBtn}
+              />
+              <TouchableOpacity onPress={handleRestore} disabled={restoring} style={styles.restoreBtn}>
+                {restoring
+                  ? <ActivityIndicator size="small" color={Colors.primary} />
+                  : <Text style={styles.restoreText}>{t('settings.restorePurchase')}</Text>
+                }
+              </TouchableOpacity>
+            </View>
           </>
         )}
       </Card>
@@ -154,7 +231,17 @@ const styles = StyleSheet.create({
   },
   progressFill: { height: '100%', backgroundColor: Colors.primary, borderRadius: BorderRadius.full },
   planDesc: { fontSize: FontSize.sm, color: Colors.textSecondary, marginBottom: Spacing.sm },
-  upgradeBtn: { marginTop: Spacing.sm },
+  upgradeBox: {
+    marginTop: Spacing.sm, backgroundColor: '#F1F8E9',
+    borderRadius: BorderRadius.md, padding: Spacing.md,
+    borderWidth: 1, borderColor: Colors.primary,
+  },
+  upgradePriceLabel: { fontSize: FontSize.md, fontWeight: '700', color: Colors.primaryDark, marginBottom: Spacing.sm },
+  upgradeFeatures: { fontSize: FontSize.sm, color: Colors.text, lineHeight: 22, marginBottom: Spacing.sm },
+  upgradePrice: { fontSize: FontSize.xl, fontWeight: '700', color: Colors.primary, marginBottom: Spacing.sm },
+  upgradeBtn: { marginTop: Spacing.xs },
+  restoreBtn: { alignItems: 'center', marginTop: Spacing.sm, padding: Spacing.sm },
+  restoreText: { fontSize: FontSize.sm, color: Colors.primary },
   langGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
   langChip: {
     paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm,

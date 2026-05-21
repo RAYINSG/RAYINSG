@@ -82,13 +82,20 @@ export const useInventory = create<InventoryState>()(
 
     const itemId = await addItem(fullItem);
 
-    // 儲存縮圖到 App 永久目錄，原圖路徑保留給 Firestore
+    // 縮圖儲存失敗不影響主流程，item 仍然成功建立
     if (itemData.photoUri) {
-      const thumbPath = await saveThumbnail(itemData.photoUri, itemId);
-      await updateItem(itemId, {
-        photoUri: itemData.photoUri,   // 原圖（可能是相簿或 cache）
-        thumbnailUri: thumbPath,        // 縮圖（永久本機）
-      });
+      try {
+        const thumbPath = await saveThumbnail(itemData.photoUri, itemId);
+        await updateItem(itemId, {
+          photoUri: itemData.photoUri,   // 原圖（可能是相簿或 cache）
+          thumbnailUri: thumbPath,        // 縮圖（永久本機）
+        });
+      } catch {
+        // 縮圖失敗時仍保留原圖 URI，不讓整個儲存失敗
+        try {
+          await updateItem(itemId, { photoUri: itemData.photoUri });
+        } catch {}
+      }
     }
 
     return itemId;
