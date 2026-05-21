@@ -17,7 +17,7 @@ import {
   listenPurchaseUpdates,
 } from '../../../services/iap/purchase';
 
-const SUPPORT_EMAIL = 'chijui_yen@hotmail.com';
+const SUPPORT_EMAIL = 'chijuiyen@hotmail.com';
 const FREE_ITEM_LIMIT = 10;
 
 export function SettingsScreen() {
